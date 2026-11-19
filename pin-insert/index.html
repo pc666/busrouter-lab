@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FencePinInserter · 一条 bit 怎样穿过 B</title>
+<style>
+:root{color-scheme:light;--paper:#f4f4ef;--surface:#fffefa;--ink:#172f30;--sub:#4c6260;--line:#d2dbd4;--accent:#126254;--soft:#e1f1e7;--warn:#96391b;--board:#112e31;--board-line:#517476;--wire:#81edc4;--wire-new:#ffc982;--wire-quiet:#b7d2d0;--board-text:#edf8f1;--mono:"IBM Plex Mono",Consolas,monospace;--sans:"Source Sans 3","Microsoft YaHei UI","PingFang SC",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans)}main{max-width:1250px;margin:auto;padding:20px clamp(13px,3.6vw,52px) 48px}h1,h2,h3,p{margin:0}button,select,input{font:inherit}button,select{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d87c38;outline-offset:3px}button:disabled{cursor:default;opacity:.45}.mono,.value{font-family:var(--mono)}button{color:var(--ink)}
+.mast,.head,.panelhead,.transport,.lower,.tools,.chapterbar,.trackline{display:flex;align-items:center}.mast{border-bottom:1px solid var(--line);gap:12px;padding-bottom:14px;font-size:13px;color:var(--sub)}.mast strong{font:600 15px var(--mono);color:var(--ink)}.sig{display:inline-block;width:22px;height:14px;border:2px solid var(--accent);border-left:0;border-right:0;transform:skewY(-16deg)}
+.head{justify-content:space-between;gap:25px;align-items:end;margin:26px 0 21px}.head h1{font-size:clamp(28px,3.3vw,46px);line-height:1.22;letter-spacing:-.045em}.head p{color:var(--sub);margin-top:8px}.casepick{flex:none;color:var(--sub);font-size:13px}.casepick select{display:block;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px;color:var(--ink);margin-top:4px;font-size:14px;max-width:100%}
+.chapterbar{gap:4px;flex-wrap:wrap;margin-bottom:15px}.chapterbar button{padding:6px 12px;font-size:14px;border:1px solid transparent;border-radius:20px;color:var(--sub);background:transparent}.chapterbar button[aria-current="step"]{color:var(--accent);background:var(--soft);border-color:#b9d6c4;font-weight:650}.chapterbar button:hover{background:var(--surface)}
+.workspace{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(280px,.88fr);gap:14px;align-items:stretch}.visual,.inspector,.stepnote,.quiz{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:0}.visual{overflow:hidden;display:flex;flex-direction:column}.board{background:var(--board);color:var(--board-text);flex:1;display:flex;flex-direction:column;justify-content:center}.panelhead{justify-content:space-between;gap:7px;padding:12px 17px;font-size:14px}.board .panelhead{border-bottom:1px solid #426063}.board .panelhead span{font-size:12px;color:#c0d8d3}.board svg{display:block;width:100%;height:auto;overflow:visible}.board text{font:13px var(--sans);fill:var(--board-text);text-anchor:middle}.board .id{font:13px var(--mono)}.board .quiet{fill:#c2d4d1}.board .ft{fill:var(--wire-new)}.board .fencename{font:600 21px var(--mono)}.board .wire{fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.board .grow{stroke-dasharray:1 0;animation:route-draw .74s ease-out}.board .trace{stroke:#fff3b1;stroke-width:4;fill:none;stroke-dasharray:.045 .955;animation:trace-path 1.9s ease-in-out forwards;pointer-events:none}
+@keyframes route-draw{from{stroke-dasharray:0 1}to{stroke-dasharray:1 0}}@keyframes trace-path{from{stroke-dashoffset:0}to{stroke-dashoffset:-.955}}
+.trackline{gap:12px;margin:13px 16px 7px}.trackline input{width:100%;accent-color:var(--accent);cursor:pointer;min-width:40px}.trackline output{font:13px var(--mono);white-space:nowrap}.transport{justify-content:space-between;gap:8px;padding:0 16px 12px}.tools{gap:5px}.transport button,.quiz button{background:transparent;border:1px solid var(--line);border-radius:6px;padding:6px 11px;font-size:14px}.transport .play{background:var(--ink);color:white;border-color:var(--ink);min-width:85px}.inspector{padding:18px 17px}.inspector h2,.quiz h3{font-size:16px}.inspector p{color:var(--sub);font-size:13px;margin:4px 0 14px}.inspector table{width:100%;border-collapse:collapse;table-layout:fixed}.inspector th,.inspector td{border-bottom:1px solid var(--line);padding:10px 3px;text-align:left;font:13px var(--mono)}.inspector th:first-child{width:24%}.inspector th{font-weight:650}.inspector thead th{color:var(--sub)}td.empty{color:var(--sub);font-family:var(--sans)}td.changed{background:var(--soft);color:var(--accent);font-weight:700}.inspector .count{margin:14px 0 0;font-size:13px}.count strong{color:var(--ink);font-family:var(--mono)}
+.stepnote{margin-top:14px;padding:16px 20px;border-left:4px solid var(--accent)}.stepnote h2{font-size:clamp(19px,2vw,24px);line-height:1.35}.stepnote p{margin-top:5px;color:var(--sub)}.stepnote[data-failed="true"]{border-left-color:var(--warn)}
+.lower{align-items:flex-start;gap:14px;margin-top:14px}.quiz{flex:1;padding:13px 16px}.quiz p{font-size:14px;margin:4px 0 8px}.quiz button{margin:0 6px 4px 0}.quiz button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent)}.quiz output{display:block;font-size:14px;color:var(--accent)}.quiz output[data-correct="false"]{color:var(--warn)}.footnote{color:var(--sub);font-size:12px;margin:14px 2px 0}[hidden]{display:none!important}
+@media(max-width:840px){.workspace{grid-template-columns:minmax(0,1.45fr) minmax(235px,1fr)}.inspector{padding:14px 11px}}
+@media(max-width:690px){main{padding-top:13px}.head{align-items:flex-start;flex-direction:column;gap:12px;margin:18px 0 12px}.casepick{display:flex;align-items:center;gap:8px}.casepick select{margin:0}.workspace{grid-template-columns:1fr}.inspector{padding:14px}.lower{flex-direction:column}.quiz{width:100%}.chapterbar{gap:0}.chapterbar button{padding:6px 9px}.stepnote{padding:12px 14px}.inspector p{margin-bottom:4px}.inspector .count{margin-top:8px}.inspector th,.inspector td{padding:6px 4px}}
+@media(prefers-reduced-motion:reduce){.board .grow,.board .trace{animation:none}.board .trace{display:none}}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--paper:#142124;--surface:#1b2c2e;--ink:#ecf5ed;--sub:#b8ccc6;--line:#395153;--accent:#8ed8b5;--soft:#23423b;--warn:#ffb087}.transport .play{color:#132924}.chapterbar button[aria-current="step"]{border-color:#426557}}
+.workspace .stepnote{grid-column:1/-1;margin-top:0}
+@media(max-width:690px){.workspace .visual{order:1}.workspace .stepnote{order:2}.workspace .inspector{order:3}}
+</style>
+</head>
+<body>
+<main>
+<header class="mast"><span class="sig" aria-hidden="true"></span><strong>FencePinInserter</strong><span>交互实验课</span></header>
+<div class="head"><div><h1>一条 bit 怎样穿过 B？</h1><p>跟着 A.Q 到 C.D，看四个边界 pin 的 upper 和 lower 逐个接到哪条 HNet。</p></div>
+<label class="casepick">运行场景<select id="scenario"><option value="normal">正常接通</option><option value="failure">C.in.upper 挂接失败</option></select></label></div>
+<nav class="chapterbar" id="chapters" aria-label="跳到教学阶段"></nav>
+<div class="workspace">
+<section class="visual" aria-label="走线和网表动画"><div class="board">
+<div class="panelhead"><strong id="view-name"></strong><span id="view-key"></span></div>
+<svg id="scene" role="img" aria-label="A、B、C 的分区走线和 HNet 连接"></svg></div>
+<div class="trackline"><output id="counter" for="scrub"></output><input type="range" id="scrub" min="0" value="0" aria-label="跳到任意步骤"></div>
+<div class="transport"><button id="play" class="play" type="button">▶ 播放</button><div class="tools"><button type="button" id="prev">上一步</button><button type="button" id="next">下一步</button></div></div></section>
+<section class="inspector"><h2>当前网表</h2><p>upper 接 fence 外，lower 接 fence 内。</p>
+<table aria-label="数据库中各 pin 的实际挂接"><thead><tr><th scope="col">pin</th><th scope="col">upper</th><th scope="col">lower</th></tr></thead><tbody id="pins"></tbody></table>
+<p class="count" id="object-count"></p></section>
+<section class="stepnote" id="stepnote" aria-live="polite"><h2 id="step-title"></h2><p id="explain"></p></section>
+</div>
+<div class="lower">
+<section class="quiz" id="quiz" hidden><h3>预测下一步</h3><p id="question"></p><div id="options"></div><output id="feedback" aria-live="polite"></output></section></div>
+<p class="footnote">图中 hnet_* 为教学用名。本例假设拆开一个边界 pin 时，upper 和 lower 都被释放。</p>
+<noscript>请启用 JavaScript 以播放步骤。</noscript>
+</main>
+<script>
+(() => {
+'use strict';
+const byId = id => document.getElementById(id);
+const pinNames = ['A.out','B.in','B.out','C.in'];
+const a0 = 'hnet_a0', ac0 = 'hnet_ac0', b0 = 'hnet_b0', bc0 = 'hnet_bc0', c0 = 'hnet_c0';
+const chapterNames = ['读走线','定方向','建对象','挂 HNet','校验与恢复'];
+
+const initialPins = [[ac0,a0],null,null,[ac0,c0]];
+const steps = [
+ {ch:0,title:'起点 · A.out 和 C.in 共用 hnet_ac0',note:'A.Q 已经能驱动 C.D。先看上方连线：hnet_ac0 同时挂在 A.out.upper 和 C.in.upper。B 里还没有这个 bit 的 pin。'},
+ {ch:0,title:'一条线段切出四个边界点',note:'本例的路由含一条 (2,2) → (8,2) 的线段，单位 µm。A、C 的接入点由 router 指定；x=4 和 x=6 是线穿过 B 的两个交点。',geo:true},
+ {ch:1,title:'从 A.Q 出发，给四个点定方向',note:'沿线依次离开 A、进入 B、离开 B、进入 C。现在可以读出每个交点的进出方向。这两步里数据库的 pin 表保持原值。',geo:true},
+ {ch:2,title:'找到 A、C 已有的连接',note:'A.Q 在 hnet_a0 上，C.D 在 hnet_c0 上。从已有的 A.out 读出 hnet_ac0，分给 A 到 B 的线段；后面查找边界 pin 时会复用 A.out 和 C.in。'},
+ {ch:2,title:'在 B 的边界建 B.in、B.out',note:'两个交点各建一个 feedthrough HTerm。此时它们已有 IN / OUT 方向，两侧都还空着。',changes:[[1,null,null],[2,null,null]]},
+ {ch:2,title:'给 B 内和 B 到 C 各分配一条 HNet',note:'在 B 内建立 hnet_b0，在共同父层建立 hnet_bc0。这一步只创建网对象，下一步才把 pin 挂上去。'},
+ {ch:3,title:'先挂 B.in.lower',note:'把 B.in 的内侧挂到 hnet_b0。图中空心线头表示该 HNet 在这个方向还没有第二个端子。',changes:[[1,undefined,b0]]},
+ {ch:3,title:'再挂 B.in.upper',note:'B.in 的外侧挂到 hnet_ac0。留意上方的分支：此时 A.out、B.in、C.in 三个 upper 暂时都在 hnet_ac0 上。',changes:[[1,ac0,undefined]]},
+ {ch:3,title:'B.out.lower 也挂到 hnet_b0',note:'现在 B.in.lower 和 B.out.lower 指向同一条 hnet_b0。信号已经可以从 B 的入口到达出口。',changes:[[2,undefined,b0]]},
+ {ch:3,title:'B.out.upper 挂到 hnet_bc0',note:'hnet_bc0 先接到 B.out 的外侧。C.in.upper 此刻仍接着 hnet_ac0，要把 C 迁到 B 的下游。',changes:[[2,bc0,undefined]]},
+ {ch:3,title:'拆开 C.in 的旧挂接',note:'先记录 C.in 两侧的旧 HNet，再拆开这个 pin。这里演示两侧都被拆开的情况，hnet_ac0 仍连接 A.out 和 B.in。',changes:[[3,null,null]]},
+ {ch:3,title:'先把 C.in.lower 接回 hnet_c0',note:'重新读取两侧后，发现 lower 被拆空，于是补挂 hnet_c0。C.D 一直在 hnet_c0 上，接下来只差 C.in.upper。',changes:[[3,undefined,c0]]},
+ {ch:3,title:'把 C.in.upper 挂到 hnet_bc0',note:'最后一次 upper 挂接成功。A 到 C 的通路现在必须经 B.in、hnet_b0、B.out。',changes:[[3,bc0,undefined]]},
+ {ch:4,title:'沿 HNet 回读，核对原始端子',note:'从 A.Q 所在的 hnet_a0 出发。遇到 HTerm 就从一侧走到另一侧，最终应到达原来的 C.D，且没有额外的叶子端子。',trace:true},
+ {ch:4,title:'提交这一位，保留 A.Q 的驱动侧连接',note:'检查旧边界 pin 是否遗留并行通路，并核对原始 bit、bus 和驱动侧 HNet。本例提交 1 bit，新建 2 个边界 pin，复用 2 个。',trace:true}
+];
+const failureEnding = [
+ {ch:3,title:'C.in.upper 挂接失败',note:'这次尝试把 C.in.upper 挂到 hnet_bc0 时失败。C.in.lower 已经是 hnet_c0，upper 仍为空。此时本 bit 尚未提交。',failed:true},
+ {ch:4,title:'按保存的两侧连接恢复',note:'恢复 C.in.upper = hnet_ac0、C.in.lower = hnet_c0，并把本轮新建的 B.in 和 B.out 两侧都拆空。',changes:[[1,null,null],[2,null,null],[3,ac0,c0]],failed:true},
+ {ch:4,title:'原来的 A.Q → C.D 恢复',note:'本次提交 0 bit。数据库保留两个空的 B 边界 pin，以及 hnet_b0、hnet_bc0 两个新 HNet 对象。报告记录了这些保留对象。',failed:true,trace:true}
+];
+const quizzes = {
+  1:{q:'沿 A.Q → C.D 前进，第一次碰到 B 是哪种方向？',options:['进入 B（IN）','离开 B（OUT）'],answer:0,why:'x=4 处，线从父层跨进 B。'},
+  7:{q:'要把 B.in 和 B.out 在 B 内连通，B.out.lower 应挂哪条？',options:[ac0,b0,bc0],answer:1,why:'两个 lower 都接 hnet_b0，才能在 B 内连通。'},
+  9:{q:'C.in 哪一侧必须改挂，才能接在 B.out 下游？',options:['upper → hnet_bc0','lower → hnet_bc0'],answer:0,why:'B.out.upper 和 C.in.upper 在共同父层相连。'},
+  11:{q:'挂接成功后，hnet_ac0 还接着谁？',options:['A.out 和 B.in','B.out 和 C.in'],answer:0,why:'改挂的是 C.in，A.out 和 B.in 仍共用 hnet_ac0。'}
+};
+let stepIndex = 0, timer = null;
+const answers = new Map();
+const activeSteps = () => byId('scenario').value === 'failure' ? steps.slice(0,12).concat(failureEnding) : steps;
+function stateAt(index) {
+    const pins = initialPins.map(pin => pin && pin.slice());
+    const timeline = activeSteps();
+    for (const step of timeline.slice(0,index+1)) {
+        for (const [pin,upper,lower] of step.changes || []) {
+            pins[pin] ||= [null,null];
+            if (upper !== undefined) pins[pin][0] = upper;
+            if (lower !== undefined) pins[pin][1] = lower;
+        }
+    }
+    return pins;
+}
+const svg = byId('scene'), ns = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent=svg) {
+    const element = document.createElementNS(ns,tag);
+    for(const [name,value] of Object.entries(attrs)) element.setAttribute(name,value);
+    parent.appendChild(element);
+    return element;
+}
+function drawScene() {
+    const sceneWidth = Math.max(285,Math.round(svg.parentElement.clientWidth));
+    const x = fraction => Math.round(sceneWidth*fraction);
+    const [a,bi,bo,c] = [.21,.38,.62,.79].map(x);
+    const q=x(.075), d=x(.925), y=146, rail=40, gap=Math.max(7,x(.017));
+    const step=activeSteps()[stepIndex], pins=stateAt(stepIndex);
+    const wire='var(--wire)', fresh='var(--wire-new)', neutral='var(--wire-quiet)';
+    svg.replaceChildren(); svg.setAttribute('viewBox','0 0 '+sceneWidth+' 234');
+    const title = el('title',{}); title.textContent=step.title;
+    const defs=el('defs',{}), pattern=el('pattern',{id:'fp-grid',width:17,height:17,patternUnits:'userSpaceOnUse'},defs);
+    el('circle',{cx:1,cy:1,r:.8,fill:'#375355'},pattern);
+    el('rect',{width:'100%',height:'100%',fill:'url(#fp-grid)'});
+    function label(xx,yy,str,cls='',attrs={}) {const t=el('text',{x:xx,y:yy,class:cls,...attrs});t.textContent=str;return t;}
+    function line(path,color,animate=false,extra={}) {
+        return el('path',{d:path,stroke:color,class:'wire'+(animate?' grow':''),pathLength:1,...extra});
+    }
+    function dot(xx,yy,r,color,solid=true) {el('circle',{cx:xx,cy:yy,r,fill:solid?color:'var(--board)',stroke:color,'stroke-width':2});}
+    function pin(xx,yy,planned,focus) {
+        if(focus) el('circle',{cx:xx,cy:yy,r:11,fill:'none',stroke:fresh,'stroke-width':1.5});
+        el('rect',{x:xx-4.5,y:yy-4.5,width:9,height:9,fill:planned?'var(--board)':neutral,stroke:planned?fresh:neutral,'stroke-width':1.6,transform:'rotate(45 '+xx+' '+yy+')'});
+    }
+    const regions=[[x(.018),a,'A'],[bi,bo,'B'],[c,x(.982),'C']];
+    for(const [start,end,name] of regions) {
+        el('rect',{x:start,y:74,width:end-start,height:118,rx:5,fill:name==='B'?'#193d3e':'#173537',stroke:'var(--board-line)','stroke-width':1.3});
+        label((start+end)/2,101,name,'fencename');
+    }
+    if(step.geo) {
+        line('M'+a+' '+y+'H'+c,fresh,true);
+        const xs=[a,bi,bo,c], roles=['OUT','IN','OUT','IN'];
+        if(stepIndex===2) {
+            for(let i=1;i<xs.length;i++){
+                const mid=(xs[i]+xs[i-1])/2;
+                line('M'+(mid-4)+' '+(y-4)+'l5 4 -5 4',fresh);
+            }
+        }
+        xs.forEach((xx,i)=>{
+            pin(xx,y,true,false);
+            label(xx,127,stepIndex===2?roles[i]:'x='+[2,4,6,8][i],'id ft');
+            label(xx,214,pinNames[i],'id');
+        });
+        label(x(.5),45,'(2,2) → (8,2)  µm','id');
+    } else {
+        const [pa,pi,po,pc]=pins;
+        const bHasIn=pi?.[0]===ac0, cOnAc=pc[0]===ac0, bHasOut=po?.[0]===bc0, cOnBc=pc[0]===bc0;
+        const leftRiser=a+gap, rightRiser=c-gap, inRiser=bi-gap;
+        const left='M'+a+' '+y+'H'+leftRiser+'V'+rail;
+        const right='H'+rightRiser+'V'+y+'H'+c, intoB='H'+inRiser+'V'+y+'H'+bi;
+        line(left+(cOnAc?right:intoB),wire,stepIndex===10||stepIndex===13&&step.failed);
+        if(bHasIn&&cOnAc) {line('M'+inRiser+' '+rail+'V'+y+'H'+bi,wire,stepIndex===7);dot(inRiser,rail,3,wire);}
+        label(cOnAc?x(.5):(leftRiser+inRiser)/2,rail-10,ac0,'id');
+        line('M'+q+' '+y+'H'+a,neutral); dot(q,y,3.4,neutral);
+        line('M'+d+' '+y+'H'+(pc[1]===c0?c:c+gap),neutral,stepIndex===11);
+        dot(d,y,3.4,neutral); if(!pc[1]) dot(c+gap,y,3,neutral,false);
+        label((q+a)/2,174,a0,'id');label((d+c)/2,174,c0,'id');
+        label(q,126,'Q','id'); label(d,126,'D','id');
+        if(pi?.[1]===b0){
+            const end=po?.[1]===b0?bo:x(.5);
+            line('M'+bi+' '+y+'H'+end,fresh,stepIndex===6||stepIndex===8);
+            if(end!==bo)dot(end,y,3,fresh,false);
+            label(x(.5),174,b0,'id ft');
+        } else if(stepIndex>=5){
+            dot(x(.5),y,4,fresh,false);label(x(.5),174,b0,'id ft');
+        }
+        if(bHasOut){
+            const end=cOnBc?c:(bo+c)/2;
+            line('M'+bo+' '+y+'H'+end,wire,stepIndex===9||stepIndex===12&&!step.failed);
+            if(!cOnBc)dot(end,y,3,wire,false);
+            label((bo+c)/2,sceneWidth<470||!cOnBc?127:174,bc0,'id');
+        } else if(stepIndex>=5){
+            dot((bo+c)/2,y,4,wire,false);label((bo+c)/2,127,bc0,'id');
+        }
+        const xs=[a,bi,bo,c], focus=step.changes?.map(change=>change[0])||[];
+        xs.forEach((xx,i)=>{
+            if(pins[i]){pin(xx,y,false,focus.includes(i));label(xx,214,pinNames[i],'id');}
+        });
+        if(step.trace){
+            const walk=cOnAc?'M'+q+' '+y+'H'+leftRiser+'V'+rail+right+'H'+d:
+                'M'+q+' '+y+'H'+leftRiser+'V'+rail+intoB+'H'+d;
+            el('path',{d:walk,pathLength:1,class:'trace'});
+        }
+    }
+    byId('view-name').textContent=step.geo?'RoutingResult · 走线中心线':'逻辑网表 · A.Q → C.D';
+    byId('view-key').textContent=step.geo?'◇ 边界交点':'◆ 边界 pin';
+}
+function renderTable() {
+    const pins=stateAt(stepIndex), lastPins=stateAt(Math.max(0,stepIndex-1));
+    const body=byId('pins');body.replaceChildren();
+    pins.forEach((sides,index)=>{
+        const row=body.insertRow(),name=document.createElement('th');name.scope='row';name.textContent=pinNames[index];row.appendChild(name);
+        for(let side=0;side<2;side++){
+            const cell=row.insertCell();cell.textContent=sides?(sides[side]||'空'):'未建';
+            if(!sides?.[side])cell.classList.add('empty');
+            if(sides?.[side]!==lastPins[index]?.[side])cell.classList.add('changed');
+        }
+    });
+    byId('object-count').textContent='边界 pin '+pins.filter(Boolean).length+' 个　·　HNet '+(stepIndex>=5?5:3)+' 条';
+}
+function renderQuiz() {
+    const quiz=quizzes[stepIndex], area=byId('quiz');
+    area.hidden=!quiz;
+    if(!quiz)return;
+    byId('question').textContent=quiz.q;
+    const options=byId('options'),feedback=byId('feedback'), choice=answers.get(stepIndex);
+    options.replaceChildren();
+    quiz.options.forEach((text,i)=>{
+        const button=document.createElement('button');button.type='button';button.textContent=text;
+        button.setAttribute('aria-pressed',String(i===choice));
+        button.onclick=()=>{stop();answers.set(stepIndex,i);renderQuiz();options.children[i].focus();};
+        options.appendChild(button);
+    });
+    feedback.textContent=choice===undefined?'':(choice===quiz.answer?'答对了。':'再看一次。')+quiz.why;
+    feedback.dataset.correct=String(choice===quiz.answer);
+}
+function render() {
+    const timeline=activeSteps(), step=timeline[stepIndex];
+    byId('step-title').textContent=step.title;byId('explain').textContent=step.note;byId('stepnote').dataset.failed=String(Boolean(step.failed));
+    byId('counter').textContent=String(stepIndex+1).padStart(2,'0')+' / '+timeline.length;
+    const scrub=byId('scrub');scrub.max=timeline.length-1;scrub.value=stepIndex;scrub.setAttribute('aria-valuetext',step.title);
+    byId('prev').disabled=stepIndex===0;byId('next').disabled=stepIndex===timeline.length-1;
+    const play=byId('play');play.textContent=timer!==null?'Ⅱ 暂停':stepIndex===timeline.length-1?'↺ 重播':'▶ 播放';
+    [...byId('chapters').children].forEach((b,i)=>{if(i===step.ch)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+    drawScene();renderTable();renderQuiz();
+}
+function stop(){if(timer!==null){clearInterval(timer);timer=null;byId('play').textContent='▶ 播放';}}
+function go(index) {stop();stepIndex=Math.max(0,Math.min(activeSteps().length-1,index));render();}
+chapterNames.forEach((name,i)=>{
+    const button=document.createElement('button');button.type='button';button.textContent=name;
+    button.onclick=()=>go(activeSteps().findIndex(s=>s.ch===i));byId('chapters').appendChild(button);
+});
+byId('prev').onclick=()=>go(stepIndex-1);byId('next').onclick=()=>go(stepIndex+1);
+byId('scrub').oninput=e=>go(Number(e.target.value));byId('scenario').onchange=()=>{go(Math.min(stepIndex,12));};
+byId('play').onclick=()=>{
+    if(timer!==null){stop();render();return;}
+    if(stepIndex===activeSteps().length-1)stepIndex=0;
+    timer=setInterval(()=>{stepIndex++;if(stepIndex>=activeSteps().length-1)stop();render();},2300);
+    render();
+};
+document.addEventListener('keydown',e=>{
+    if(e.altKey||e.ctrlKey||e.metaKey||e.target.closest('input, select, button'))return;
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(stepIndex+(e.key==='ArrowRight'?1:-1));}
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&timer!==null){stop();render();}});
+new ResizeObserver(drawScene).observe(svg.parentElement);
+render();
+})();
+</script>
+</body>
+</html>
